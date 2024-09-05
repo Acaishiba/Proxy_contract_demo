@@ -104,6 +104,32 @@ contract CrossChainMessage {
         return senderMessages;
     }
 
+    // 查询所有待执行的消息
+    function getPendingMessages() public view returns (Message[] memory) {
+        uint256 pendingCount = 0;
+
+        // 先计算状态为待执行的消息数量
+        for (uint256 i = 0; i < messages.length; i++) {
+            if (messages[i].status == Status.Pending) {
+                pendingCount++;
+            }
+        }
+
+        // 创建一个大小为 pendingCount 的数组
+        Message[] memory pendingMessages = new Message[](pendingCount);
+        uint256 index = 0;
+
+        // 将状态为待执行的消息存入数组
+        for (uint256 i = 0; i < messages.length; i++) {
+            if (messages[i].status == Status.Pending) {
+                pendingMessages[index] = messages[i];
+                index++;
+            }
+        }
+
+        return pendingMessages;
+    }
+
     // 更换管理员
     function changeAdmin(address _newAdmin) public onlyAdmin {
         require(_newAdmin != address(0), "Invalid address for new admin.");
