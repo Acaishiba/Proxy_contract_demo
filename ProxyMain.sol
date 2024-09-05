@@ -11,6 +11,7 @@ contract CrossChainMessage {
     }
 
     struct Message {
+        address sender;        // 记录消息的发送者
         address tokenContract; // 目标链代币合约地址
         string tokenName;      // 代币名称
         uint256 amount;        // 转账金额
@@ -52,6 +53,7 @@ contract CrossChainMessage {
         string memory _targetAddress
     ) public {
         Message memory newMessage = Message({
+            sender: msg.sender,
             tokenContract: _tokenContract,
             tokenName: _tokenName,
             amount: _amount,
@@ -74,6 +76,32 @@ contract CrossChainMessage {
     function getMessage(uint256 _messageId) public view returns (Message memory) {
         require(_messageId < messages.length, "Invalid message ID.");
         return messages[_messageId];
+    }
+
+    // 查询用户发送的所有消息
+    function getMessagesBySender(address _sender) public view returns (Message[] memory) {
+        uint256 messageCount = 0;
+
+        // 先计算该用户发出的消息数量
+        for (uint256 i = 0; i < messages.length; i++) {
+            if (messages[i].sender == _sender) {
+                messageCount++;
+            }
+        }
+
+        // 创建一个大小为 messageCount 的数组
+        Message[] memory senderMessages = new Message[](messageCount);
+        uint256 index = 0;
+
+        // 将该用户的消息存入数组
+        for (uint256 i = 0; i < messages.length; i++) {
+            if (messages[i].sender == _sender) {
+                senderMessages[index] = messages[i];
+                index++;
+            }
+        }
+
+        return senderMessages;
     }
 
     // 更换管理员
